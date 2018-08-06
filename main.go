@@ -10,21 +10,18 @@ import (
 
 const OutDir = "out/"
 
-func extractYoutube(ytURL string, start int, duration int, filePath string) string {
+func extractYoutube(ytURL string, start int, duration int, filePath string) error {
 	s := fmt.Sprintf("%v", start)
 	t := fmt.Sprintf("%v", duration)
 
 	e := exec.Command("ffmpeg", "-t", t, "-ss", s, "-i", ytURL, "-vf", "scale=350:-1", "-an", "-r", "15", "-crf", "24", filePath)
-	fmt.Printf("%s %s\n", e.Path, e.Args)
 	stdout, err := e.CombinedOutput()
 	if err != nil {
-		fmt.Printf("%v\n", string(stdout))
-		panic(err)
+        fmt.Printf("ERROR:\n%v\n", string(stdout))
+        return err
 	}
 
-	res := string(stdout)
-	fmt.Printf("%s\n", res)
-	return res
+    return nil
 }
 
 func generateFileName() string {
@@ -64,9 +61,12 @@ func serveYoutubeExtractor(w http.ResponseWriter, r *http.Request) {
     fileName := generateFileName()
     fullPath := OutDir + fileName
 
-	res := extractYoutube(ytURL, startI, durI, fullPath)
+	err = extractYoutube(ytURL, startI, durI, fullPath)
+    if err != nil {
+        panic(err)
+    }
 
-	w.Write([]byte("response: " + ytURL + ", " + start + ", " + dur + ", " + res))
+    http.Redirect(w, r, "/gif/" + fileName, 302)
 }
 
 func serveRoot(w http.ResponseWriter, r *http.Request) {
