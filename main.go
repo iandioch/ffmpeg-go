@@ -8,11 +8,13 @@ import (
     "strings"
 )
 
-func extractYoutube(ytURL string, start int, duration int) string {
+const OutDir = "out/"
+
+func extractYoutube(ytURL string, start int, duration int, filePath string) string {
 	s := fmt.Sprintf("%v", start)
 	t := fmt.Sprintf("%v", duration)
 
-	e := exec.Command("ffmpeg", "-t", t, "-ss", s, "-i", ytURL, "-vf", "scale=350:-1", "-an", "-r", "15", "-crf", "24", "banana.gif")
+	e := exec.Command("ffmpeg", "-t", t, "-ss", s, "-i", ytURL, "-vf", "scale=350:-1", "-an", "-r", "15", "-crf", "24", filePath)
 	fmt.Printf("%s %s\n", e.Path, e.Args)
 	stdout, err := e.CombinedOutput()
 	if err != nil {
@@ -52,9 +54,10 @@ func serveYoutubeExtractor(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Received args: %v %v %v\n", ytURL, startI, durI)
 
-    generateFileName()
+    fileName := generateFileName()
+    fullPath := OutDir + fileName
 
-	res := extractYoutube(ytURL, startI, durI)
+	res := extractYoutube(ytURL, startI, durI, fullPath)
 
 	w.Write([]byte("response: " + ytURL + ", " + start + ", " + dur + ", " + res))
 }
