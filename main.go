@@ -8,19 +8,6 @@ import (
 )
 
 func extractYoutube(ytURL string, start int, duration int) (string) {
-    /*app := "ffmpeg"
-
-    duration = 4
-    s := fmt.Sprintf("-ss %v", start)
-    t := fmt.Sprintf("-t %v", duration)
-    v := fmt.Sprintf("-i %v", ytURL)
-
-    fmt.Printf("%v %v %v\n", t, s, v)
-    other := fmt.Sprintf("-vf \"scale=350:-1\" -an -r 15 -crf 24 banana.gif")
-    e := exec.Command(app, t, s, v, other)*/
-
-    fmt.Printf("start time = %v, duration = %v\n", start, duration)
-
     s := fmt.Sprintf("%v", start)
     t := fmt.Sprintf("%v", duration)
 
@@ -42,15 +29,12 @@ func serveYoutubeExtractor(w http.ResponseWriter, r *http.Request) {
     start := r.URL.Query().Get("start")
     dur := r.URL.Query().Get("dur")
 
-    // Do ffmpeg stuff
-
     startI, err := strconv.Atoi(start)
-    fmt.Printf("%v converted to int %v\n", start, startI)
     if err != nil {
         panic(err)
     }
+
     durI, err := strconv.Atoi(dur)
-    fmt.Printf("%v converted to int %v\n", dur, durI)
     if err != nil {
         panic(err)
     }
