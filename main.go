@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os/exec"
 	"strconv"
+    "strings"
 )
 
 func extractYoutube(ytURL string, start int, duration int) string {
@@ -24,6 +25,16 @@ func extractYoutube(ytURL string, start int, duration int) string {
 	return res
 }
 
+func generateFileName() string {
+    out, err := exec.Command("uuidgen").Output()
+    if err != nil {
+        panic(err)
+    }
+    s := fmt.Sprintf("%v.gif", strings.TrimSpace(string(out)))
+    fmt.Printf("%v\n", s)
+    return s
+}
+
 func serveYoutubeExtractor(w http.ResponseWriter, r *http.Request) {
 	ytURL := r.URL.Query().Get("video")
 	start := r.URL.Query().Get("start")
@@ -40,6 +51,8 @@ func serveYoutubeExtractor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Printf("Received args: %v %v %v\n", ytURL, startI, durI)
+
+    generateFileName()
 
 	res := extractYoutube(ytURL, startI, durI)
 
