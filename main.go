@@ -37,6 +37,13 @@ func generateFileName() string {
     return s
 }
 
+func serveGif(w http.ResponseWriter, r *http.Request) {
+    parts := strings.Split(r.URL.Path[1:], "/")
+    path := OutDir + parts[len(parts)-1]
+    fmt.Printf("Serving gif: %v\n", path)
+    http.ServeFile(w, r, path)
+}
+
 func serveYoutubeExtractor(w http.ResponseWriter, r *http.Request) {
 	ytURL := r.URL.Query().Get("video")
 	start := r.URL.Query().Get("start")
@@ -70,6 +77,7 @@ func serveRoot(w http.ResponseWriter, r *http.Request) {
 func main() {
 	http.HandleFunc("/", serveRoot)
 	http.HandleFunc("/yt_extract", serveYoutubeExtractor)
+    http.HandleFunc("/gif/", serveGif)
 	err := http.ListenAndServe(":9008", nil)
 	if err != nil {
 		panic(err)
