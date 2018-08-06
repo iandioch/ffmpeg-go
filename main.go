@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os/exec"
 	"strconv"
-    "strings"
+	"strings"
 )
 
 const OutDir = "out/"
@@ -17,28 +17,28 @@ func extractYoutube(ytURL string, start int, duration int, filePath string) erro
 	e := exec.Command("ffmpeg", "-t", t, "-ss", s, "-i", ytURL, "-vf", "scale=350:-1", "-an", "-r", "15", "-crf", "24", filePath)
 	stdout, err := e.CombinedOutput()
 	if err != nil {
-        fmt.Printf("ERROR:\n%v\n", string(stdout))
-        return err
+		fmt.Printf("ERROR:\n%v\n", string(stdout))
+		return err
 	}
 
-    return nil
+	return nil
 }
 
 func generateFileName() string {
-    out, err := exec.Command("uuidgen").Output()
-    if err != nil {
-        panic(err)
-    }
-    s := fmt.Sprintf("%v.gif", strings.TrimSpace(string(out)))
-    fmt.Printf("%v\n", s)
-    return s
+	out, err := exec.Command("uuidgen").Output()
+	if err != nil {
+		panic(err)
+	}
+	s := fmt.Sprintf("%v.gif", strings.TrimSpace(string(out)))
+	fmt.Printf("%v\n", s)
+	return s
 }
 
 func serveGif(w http.ResponseWriter, r *http.Request) {
-    parts := strings.Split(r.URL.Path[1:], "/")
-    path := OutDir + parts[len(parts)-1]
-    fmt.Printf("Serving gif: %v\n", path)
-    http.ServeFile(w, r, path)
+	parts := strings.Split(r.URL.Path[1:], "/")
+	path := OutDir + parts[len(parts)-1]
+	fmt.Printf("Serving gif: %v\n", path)
+	http.ServeFile(w, r, path)
 }
 
 func serveYoutubeExtractor(w http.ResponseWriter, r *http.Request) {
@@ -58,15 +58,15 @@ func serveYoutubeExtractor(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Received args: %v %v %v\n", ytURL, startI, durI)
 
-    fileName := generateFileName()
-    fullPath := OutDir + fileName
+	fileName := generateFileName()
+	fullPath := OutDir + fileName
 
 	err = extractYoutube(ytURL, startI, durI, fullPath)
-    if err != nil {
-        panic(err)
-    }
+	if err != nil {
+		panic(err)
+	}
 
-    http.Redirect(w, r, "/gif/" + fileName, 302)
+	http.Redirect(w, r, "/gif/"+fileName, 302)
 }
 
 func serveRoot(w http.ResponseWriter, r *http.Request) {
@@ -77,7 +77,7 @@ func serveRoot(w http.ResponseWriter, r *http.Request) {
 func main() {
 	http.HandleFunc("/", serveRoot)
 	http.HandleFunc("/yt_extract", serveYoutubeExtractor)
-    http.HandleFunc("/gif/", serveGif)
+	http.HandleFunc("/gif/", serveGif)
 	err := http.ListenAndServe(":9008", nil)
 	if err != nil {
 		panic(err)
