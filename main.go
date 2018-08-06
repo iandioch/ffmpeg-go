@@ -1,8 +1,34 @@
 package main
 
 import (
+    "fmt"
     "net/http"
+    "os/exec"
+    "strconv"
 )
+
+func extractYoutube(ytURL string, start int, duration int) (string) {
+    app := "ffmpeg"
+
+    duration = 4
+    s := fmt.Sprintf("-ss %v", start)
+    t := fmt.Sprintf("-t %v", duration)
+    v := fmt.Sprintf("-i %v", ytURL)
+
+    fmt.Printf("%v %v %v\n", t, s, v)
+    other := fmt.Sprintf("-vf \"scale=350:-1\" -an -r 15 -crf 24 banana.gif")
+    e := exec.Command(app, t, s, v, other)
+    fmt.Printf("%s %s\n", e.Path, e.Args)
+    stdout, err := e.CombinedOutput()
+    if err != nil {
+        fmt.Printf("%v\n", string(stdout))
+        panic(err)
+    }
+
+    res := string(stdout)
+    fmt.Printf("%s\n", res)
+    return res
+}
 
 func serveYoutubeExtractor(w http.ResponseWriter, r *http.Request) {
     ytURL := r.URL.Query().Get("video")
@@ -11,7 +37,20 @@ func serveYoutubeExtractor(w http.ResponseWriter, r *http.Request) {
 
     // Do ffmpeg stuff
 
-    w.Write([]byte("response: " +  ytURL + ", " + start + ", " + dur))
+    startI, err := strconv.Atoi(start)
+    if err != nil {
+        panic(err)
+    }
+    durI, err := strconv.Atoi(start)
+    if err != nil {
+        panic(err)
+    }
+
+    fmt.Printf("Received args: %v %v %v\n", ytURL, start, dur)
+
+    res := extractYoutube(ytURL, startI, durI)
+
+    w.Write([]byte("response: " +  ytURL + ", " + start + ", " + dur + ", " + res))
 }
 
 func serveRoot(w http.ResponseWriter, r *http.Request) {
