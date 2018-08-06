@@ -1,3 +1,5 @@
+This project is a small Go script which uses `ffmpeg` to create a GIF of a section of a video hosted at a given URL.
+
 # Setup
 
 1. Requires working commands `ffmpeg` and `uuidgen`.
