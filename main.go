@@ -8,7 +8,7 @@ import (
 )
 
 func extractYoutube(ytURL string, start int, duration int) (string) {
-    app := "ffmpeg"
+    /*app := "ffmpeg"
 
     duration = 4
     s := fmt.Sprintf("-ss %v", start)
@@ -17,7 +17,14 @@ func extractYoutube(ytURL string, start int, duration int) (string) {
 
     fmt.Printf("%v %v %v\n", t, s, v)
     other := fmt.Sprintf("-vf \"scale=350:-1\" -an -r 15 -crf 24 banana.gif")
-    e := exec.Command(app, t, s, v, other)
+    e := exec.Command(app, t, s, v, other)*/
+
+    fmt.Printf("start time = %v, duration = %v\n", start, duration)
+
+    s := fmt.Sprintf("%v", start)
+    t := fmt.Sprintf("%v", duration)
+
+    e := exec.Command("ffmpeg", "-t", t, "-ss", s, "-i", ytURL, "-vf", "scale=350:-1", "-an", "-r", "15", "-crf", "24", "banana.gif")
     fmt.Printf("%s %s\n", e.Path, e.Args)
     stdout, err := e.CombinedOutput()
     if err != nil {
@@ -38,15 +45,17 @@ func serveYoutubeExtractor(w http.ResponseWriter, r *http.Request) {
     // Do ffmpeg stuff
 
     startI, err := strconv.Atoi(start)
+    fmt.Printf("%v converted to int %v\n", start, startI)
     if err != nil {
         panic(err)
     }
-    durI, err := strconv.Atoi(start)
+    durI, err := strconv.Atoi(dur)
+    fmt.Printf("%v converted to int %v\n", dur, durI)
     if err != nil {
         panic(err)
     }
 
-    fmt.Printf("Received args: %v %v %v\n", ytURL, start, dur)
+    fmt.Printf("Received args: %v %v %v\n", ytURL, startI, durI)
 
     res := extractYoutube(ytURL, startI, durI)
 
